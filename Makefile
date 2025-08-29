@@ -1,11 +1,3 @@
-
-
-# Generic Makefile for local Kentico database setup using Docker, MSSQL, and bacpac import
-# Override variables at invocation, e.g.:
-#   make import DB=KenticoLocal BACPAC=YourBackup.bacpac SA_PASSWORD='ChangeMe123!'
-
-##############################
-
 ##############################
 # Core variables (override at invocation: make target VAR=value)
 ##############################
@@ -52,7 +44,9 @@ ps status:
 teardown down:
 	./scripts/teardown_sqlserver.sh
 
-# Convenience: correct sqlcmd path is /opt/mssql-tools18/bin/sqlcmd (not mssql-tools)
+# Note: correct sqlcmd path is /opt/mssql-tools18/bin/sqlcmd (not mssql-tools)
+# You also need to use -C when connecting to the container due to certificate issues
+
 sqlcmd:
 	@docker exec -it $(CONTAINER) /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P '$(SA_PASSWORD)' -d $(DB)
 

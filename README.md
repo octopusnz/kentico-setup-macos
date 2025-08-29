@@ -39,7 +39,9 @@ The scripts will automatically install the following things as needed:
 chmod +x scripts/*.sh
 
 #2. Launch Docker Desktop (Spotlight: "Docker" or run: open -a Docker)
-# If your CPU is ARM - Double check under Settings --> General --> Scroll to Virtual # Machine Options. Ensure Apple Virtualization Framework is selected and under that # Use Rosetta for emulation is enabled.
+# If your CPU is ARM - Double check under [Settings] -> [General] --> Scroll to 
+# [Virtual Machine Options]. Ensure [Apple Virtualization Framework] is selected and 
+# under that [Use Rosetta for emulation] is enabled.
 
 # 3. Start SQL Server locally
 ./scripts/start_sqlserver.sh
