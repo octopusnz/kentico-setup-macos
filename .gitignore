@@ -1,0 +1,19 @@
+# Ignore database backup artifacts and exports
+*.bacpac
+*.csv
+*.json
+
+# macOS Finder metadata
+.DS_Store
+
+# SQL Package install files
+sqlpackage/
+
+#Editor Cruft
+\#*\#
+*.sublime-workspace
+.vscode/
+
+#Environment and Platform Cruft
+.venv/
+.github/
