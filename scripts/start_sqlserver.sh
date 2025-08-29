@@ -3,24 +3,15 @@ set -euo pipefail
 
 CONTAINER_NAME=${CONTAINER_NAME:-mssql-kentico}
 SA_PASSWORD=${SA_PASSWORD:-YourStrong!Passw0rd}
-# Default full SQL Server image (amd64 only). On arm64 you can optionally set USE_EDGE=1 to use azure-sql-edge multi-arch.
-if [[ "${USE_EDGE:-0}" == "1" ]]; then
-  IMAGE=${SQL_IMAGE:-mcr.microsoft.com/azure-sql-edge}
-  EDGE_NOTE=" (azure-sql-edge mode)"
-else
-  IMAGE=${SQL_IMAGE:-mcr.microsoft.com/mssql/server:2022-latest}
-  EDGE_NOTE=""
-fi
+
+# Default full SQL Server image (amd64 only)
+IMAGE=${SQL_IMAGE:-mcr.microsoft.com/mssql/server:2022-latest}
 
 # Detect architecture (Apple Silicon needs amd64 emulation for official SQL Server image as of now)
 ARCH=$(uname -m)
 PLATFORM_ARG=""
 if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
-  if [[ "${USE_EDGE:-0}" == "1" ]]; then
-    PLATFORM_ARG=""  # azure-sql-edge is multi-arch
-  else
-    PLATFORM_ARG="--platform=linux/amd64"  # emulate
-  fi
+  PLATFORM_ARG="--platform=linux/amd64"  # emulate
 fi
 
 # Quick docker daemon availability check
@@ -40,7 +31,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
   echo "[INFO] Container ${CONTAINER_NAME} already exists. Starting (or ensuring it's running)..."
   docker start "${CONTAINER_NAME}" >/dev/null
 else
-  echo "[INFO] Creating and starting SQL Server container ${CONTAINER_NAME} (arch=${ARCH})${EDGE_NOTE}"
+  echo "[INFO] Creating and starting SQL Server container ${CONTAINER_NAME} (arch=${ARCH})"
   docker run -d ${PLATFORM_ARG} \
     --name "${CONTAINER_NAME}" \
     -e 'ACCEPT_EULA=Y' \
@@ -90,6 +81,5 @@ docker logs --tail 60 "${CONTAINER_NAME}" >&2 || true
 echo "[HINT] Possible causes:" >&2
 echo "  - Insufficient memory (allocate >= 2.5GB to Docker)." >&2
 echo "  - SA password failed complexity; container keeps restarting (check logs for 'password')." >&2
-echo "  - Using USE_EDGE=1? Edge may log different readiness text; login probe should have caught readiness." >&2
 echo "  - Architecture emulation slow; increase WAIT_SECONDS=240." >&2
 exit 1

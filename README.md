@@ -38,20 +38,23 @@ The scripts will automatically install the following things as needed:
 #1. Make scripts executable
 chmod +x scripts/*.sh
 
-# 2. Start SQL Server locally
+#2. Launch Docker Desktop (Spotlight: "Docker" or run: open -a Docker)
+# If your CPU is ARM - Double check under Settings --> General --> Scroll to Virtual # Machine Options. Ensure Apple Virtualization Framework is selected and under that # Use Rosetta for emulation is enabled.
+
+# 3. Start SQL Server locally
 ./scripts/start_sqlserver.sh
 
-# 3. (First time) Download sqlpackage locally
+# 4. (First time) Download sqlpackage locally
 ./scripts/get_sqlpackage.sh
 
-# 4. Import your bacpac into a new DB
+# 5. Import your bacpac into a new DB
 ./scripts/import_bacpac_local.sh YourBackup.bacpac KenticoLocal
 
-```
-# 4. Verify
-docker exec -it mssql-kentico /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U sa -P 'YourStrong!Passw0rd' -Q "SELECT name FROM sys.databases;"
+# 6. Verify everything is working 
+  docker exec -it mssql-kentico /opt/mssql-tools18/bin/sqlcmd \
+    -S localhost -U sa -P 'YourStrong!Passw0rd' -C -Q "SELECT name FROM sys.databases;"
 
+```
 ## Key Files / Scripts
 - `YourBackup.bacpac` (your Kentico database backup)
 - `scripts/start_sqlserver.sh` (start SQL Server container)
@@ -77,25 +80,16 @@ make import BACPAC=MyBackup.bacpac DB=MyKenticoDB SA_PASSWORD='MyPassword123!'
 
 How It Works
 ------------
-1. SQL Server runs locally in Docker (`mcr.microsoft.com/mssql/server:2022-latest` or optional `azure-sql-edge`).
+1. SQL Server runs locally in Docker: `mcr.microsoft.com/mssql/server:2022-latest`.
 2. Bacpac import via local sqlpackage install.
 
 Apple Silicon (arm64) Notes
 ---------------------------
-The official `mcr.microsoft.com/mssql/server` image is amd64-only. You have two options:
+The official `mcr.microsoft.com/mssql/server` image is amd64-only. 
 
-1. Docker Desktop (Recommended): It transparently emulates amd64. 
+Run Docker Desktop: It transparently emulates amd64. 
   Just run `make start`.
-2. Use Azure SQL Edge (multi-arch) locally: `USE_EDGE=1 make start` (image: `mcr.microsoft.com/azure-sql-edge`). This is lighter and runs natively on arm64, but Azure SQL Edge has feature gaps; some BacPac imports with advanced features may fail. If import errors occur, fall back to full SQL Server via Docker Desktop.
 
-Environment variables for Apple Silicon:
-```bash
-# Native multi-arch edge (may have limitations):
-USE_EDGE=1 make start
-
-# Force a different image:
-SQL_IMAGE=mcr.microsoft.com/azure-sql-edge USE_EDGE=1 make start
-```
 macOS ODBC
 ----------
 Run the helper script (installs unixODBC + msodbcsql18 + mssql-tools18):
@@ -106,7 +100,8 @@ If manual:
 ```bash
 brew install unixodbc
 brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release
-ACCEPT_EULA=Y brew install msodbcsql18 mssql-tools18
+ACCEPT_EULA=Y 
+brew install msodbcsql18 mssql-tools18
 ```
 Verify driver:
 ```bash
