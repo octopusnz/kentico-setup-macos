@@ -36,7 +36,7 @@ fi
 echo "[INFO] Checking SQL Server availability at $SERVER ..."
 ATTEMPTS=30
 READY=0
-for i in $(seq 1 $ATTEMPTS); do
+for _ in $(seq 1 $ATTEMPTS); do
   if docker exec mssql-kentico /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$SA_PASSWORD" -Q "SELECT 1" >/dev/null 2>&1; then
     READY=1; break
   fi

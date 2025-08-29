@@ -8,7 +8,7 @@ It hopefully works on Intel and other macOS versions but may require some tweaks
 If you do run into issues feel free to submit a pull request with any updates and include the OS version and CPU type you've tested it on.
 
 This uses a local copy of sqlpackage rather than trying to get it working in Docker.
-We ran into issues with ARM host vs the Docker image being amd-64 only and couldn't get it reliably working.
+It seemed to work intermittently and probably needs more investigation to get working.
 
 The scripts will automatically install the following things as needed:
 
@@ -16,8 +16,8 @@ The scripts will automatically install the following things as needed:
   https://learn.microsoft.com/en-us/sql/tools/sqlpackage/sqlpackage
 
 2. unixODBC, Microsoft ODBC Driver 18 for SQL Server, and mssql-tools
-  https://formulae.brew.sh/formula/unixodbc
-  https://github.com/Microsoft/homebrew-mssql-release
+  https://formulae.brew.sh/formula/unixodbc. 
+  https://github.com/Microsoft/homebrew-mssql-release. 
 
 3. Rosetta (if your CPU is ARM) due to the local sqlpackage being an amd-64 binary.
   https://support.apple.com/en-nz/102527
@@ -38,8 +38,9 @@ The scripts will automatically install the following things as needed:
 #1. Make scripts executable
 chmod +x scripts/*.sh
 
-#2. Launch Docker Desktop (Spotlight: "Docker" or run: open -a Docker)
-# If your CPU is ARM - Double check under [Settings] -> [General] --> Scroll to 
+#2. Launch Docker Desktop. Spotlight: "Docker" or run: 
+open -a Docker
+# If your CPU is ARM - Double check under [Settings] -> [General] -> Scroll to 
 # [Virtual Machine Options]. Ensure [Apple Virtualization Framework] is selected and 
 # under that [Use Rosetta for emulation] is enabled.
 
@@ -83,7 +84,8 @@ make import BACPAC=MyBackup.bacpac DB=MyKenticoDB SA_PASSWORD='MyPassword123!'
 How It Works
 ------------
 1. SQL Server runs locally in Docker: `mcr.microsoft.com/mssql/server:2022-latest`.
-2. Bacpac import via local sqlpackage install.
+2. Bacpac database backup is imported via the local sqlpackage install.
+3. Database queries
 
 Apple Silicon (arm64) Notes
 ---------------------------
@@ -92,16 +94,19 @@ The official `mcr.microsoft.com/mssql/server` image is amd64-only.
 Run Docker Desktop: It transparently emulates amd64. 
   Just run `make start`.
 
+macOS should prompt to install Rosetta when you install or run sqlinstance but if not you can run:
+`softwareupdate --install-rosetta --agree-to-license`
+
 macOS ODBC
 ----------
 Run the helper script (installs unixODBC + msodbcsql18 + mssql-tools18):
 ```bash
 scripts/setup_odbc_mac.sh
 ```
-If manual:
+Manual install:
 ```bash
 brew install unixodbc
-brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release
+brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release 
 ACCEPT_EULA=Y 
 brew install msodbcsql18 mssql-tools18
 ```
@@ -126,7 +131,7 @@ https://learn.microsoft.com/en-us/sql/tools/sqlpackage-download
 2. Unzip into `./sqlpackage/` so the binary is at `./sqlpackage/sqlpackage`.
 3. Use the import script as normal.
 
-Apple Silicon requires Rosetta (for Intel binaries); macOS should prompt to install it if needed.
+Apple silicon requires Rosetta (for Intel binaries). macOS should prompt to install it, but if not you can run: `softwareupdate --install-rosetta --agree-to-license`
 
 Example Make Targets & Shortcuts
 --------------------------------

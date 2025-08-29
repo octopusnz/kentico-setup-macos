@@ -61,7 +61,7 @@ probe_sql_login() {
   return 0
 }
 
-for i in $(seq 1 $ATTEMPTS); do
+for _ in $(seq 1 $ATTEMPTS); do
   if readiness_log_match; then
     echo "[INFO] Detected readiness via logs."
     exit 0
