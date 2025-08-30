@@ -38,22 +38,25 @@ The scripts will automatically install the following things as needed:
 #1. Make scripts executable
 chmod +x scripts/*.sh
 
-#2. Launch Docker Desktop. Spotlight: "Docker" or run: 
+#2. Install sqlpackage locally
+./scripts/get_sqlpackage.sh
+
+#3. Install mssql-tools, unixODBC, and Microsoft ODBC Driver
+./scripts/setup_odbc_mac.sh 
+
+#4. Launch Docker Desktop. Spotlight: "Docker" or run: 
 open -a Docker
 # If your CPU is ARM - Double check under [Settings] -> [General] -> Scroll to 
 # [Virtual Machine Options]. Ensure [Apple Virtualization Framework] is selected and 
 # under that [Use Rosetta for emulation] is enabled.
 
-# 3. Start SQL Server locally
+# 5. Start SQL Server locally
 ./scripts/start_sqlserver.sh
 
-# 4. (First time) Download sqlpackage locally
-./scripts/get_sqlpackage.sh
-
-# 5. Import your bacpac into a new DB
+# 6. Import your bacpac into a new DB
 ./scripts/import_bacpac_local.sh YourBackup.bacpac KenticoLocal
 
-# 6. Verify everything is working 
+# 7. Verify everything is working 
   docker exec -it mssql-kentico /opt/mssql-tools18/bin/sqlcmd \
     -S localhost -U sa -P 'YourStrong!Passw0rd' -C -Q "SELECT name FROM sys.databases;"
 
