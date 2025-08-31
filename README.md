@@ -8,8 +8,6 @@ It hopefully works on Intel and other macOS versions but may require some tweaks
 If you do run into issues feel free to submit a pull request with any updates and include the OS version and CPU type you've tested it on.
 
 This uses a local copy of sqlpackage rather than trying to get it working in Docker.
-It seemed to work intermittently and probably needs more investigation to get working.
-
 The scripts will automatically install the following things as needed:
 
 1. sqlpackage from Microsoft into a sqlpackage/ folder in your project directory.
@@ -88,7 +86,13 @@ How It Works
 ------------
 1. SQL Server runs locally in Docker: `mcr.microsoft.com/mssql/server:2022-latest`.
 2. Bacpac database backup is imported via the local sqlpackage install.
-3. Database queries
+3. Database queries using mssql-tools (sqlcmd) for example:
+
+Start an interactive session (run SQL commands like SELECT * FROM sys.tables;)
+  `docker exec -it mssql-kentico /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'YourStrong!Passw0rd' -d KenticoLocal`
+
+Run a one-off query and return results:
+`docker exec -it mssql-kentico /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'YourStrong!Passw0rd' -d KenticoLocal -Q "SELECT TOP 10 * FROM CMS_User;"`
 
 Apple Silicon (arm64) Notes
 ---------------------------
@@ -109,8 +113,7 @@ scripts/setup_odbc_mac.sh
 Manual install:
 ```bash
 brew install unixodbc
-brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release 
-ACCEPT_EULA=Y 
+brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release ACCEPT_EULA=Y 
 brew install msodbcsql18 mssql-tools18
 ```
 Verify driver:
@@ -140,7 +143,7 @@ Example Make Targets & Shortcuts
 --------------------------------
 ```
 make start                # start container
-make import-local         # local sqlpackage import (preferred)
+make import-local         # local sqlpackage import
 make sqlcmd               # interactive sqlcmd to $(DB)
 make help                 # list all targets
 ```
